@@ -6,7 +6,7 @@ import uos
 from machine import Pin
 
 # File name of the script to import
-file_name = "pulse_width_modulation"
+file_name = "servo_control"
 
 SCRIPT_DIRECTORY = "/py_scripts"
 CONTEXT_RADIUS = 2
