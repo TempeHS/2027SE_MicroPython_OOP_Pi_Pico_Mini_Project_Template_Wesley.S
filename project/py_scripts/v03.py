@@ -1,27 +1,14 @@
 from machine import Pin
-from time import sleep, time
+from time import sleep
 
 
 class Led_Light(Pin):
-    """
-    Simple Class to turn an LED on or off on a Raspberry Pico.
-
-    Args:
-        pin (int): GPIO pin number for the LED
-
-    Example:
-        led = LedPico(25) # Onboard LED
-        led.set(True)     # Turn on
-        led.set(False)    # Turn off
-    """
-
     def __init__(self, pin, flashing=False, debug=False):
         super().__init__(pin, Pin.OUT)
         self.__debug = debug
         self.__pin = pin
         self.__flashing = flashing
         self.led_light_state
-        self.__last_toggle_time = time()
 
     @property
     def led_light_state(self):
@@ -30,12 +17,6 @@ class Led_Light(Pin):
 
     @led_light_state.setter
     def led_light_state(self, value):
-        """
-        Set the LED on or off.
-
-        Args:
-        state (bool): True to turn on, False to turn off.
-        """
         # Setter method
         if value == 1:
             self.off()
@@ -43,37 +24,29 @@ class Led_Light(Pin):
             self.on()
 
     def on(self):
-        """
-        Turn the LED on.
-        """
         self.high()
         if self.__debug:
             print(f"LED connected to Pin {self.__pin} is high")
 
     def off(self):
-        """
-        Turn the LED off.
-        """
         self.low()
         if self.__debug:
             print(f"LED connected to Pin {self.__pin} is low")
 
     def toggle(self):
-        """
-        Toggle the LED state.
-        """
         # method overriding polymorphism of the Super Class
         if self.value() == 0:
             self.on()
         elif self.value() == 1:
             self.off()
 
-    def flash(self):
-        """
-        Flash the LED on and off every 0.5 seconds.
-        """
-        # Non-blocking flash: toggles LED every 0.05s for the given duration
-        now = time()
-        if self.__flashing and now - self.__last_toggle_time >= 0.5:
-            self.toggle()
-            self.__last_toggle_time = now
+
+red_light = Led_Light(3)
+
+while True:
+    print(red_light.led_light_state)
+    red_light.led_light_state = 1
+    sleep(0.25)
+    print(red_light.led_light_state)
+    red_light.led_light_state = 0
+    sleep(0.25)

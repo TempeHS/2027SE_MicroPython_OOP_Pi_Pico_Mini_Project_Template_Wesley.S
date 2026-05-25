@@ -30,7 +30,7 @@
     "/home/vscode/.vscode-remote/extensions/benpaddlejones.pico-bridge-2.1.4/emulator/mock/typings",
     "/home/vscode/.vscode-remote/extensions/benpaddlejones.pico-bridge-2.1.4/emulator/mock/micropython"
   ],
-  "workbench.colorTheme": "Dark+",
+  "workbench.colorTheme": "Monokai",
   "workbench.iconTheme": "vscode-icons",
   "github.copilot.enable": {
     "python": false,
