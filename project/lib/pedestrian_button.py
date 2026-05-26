@@ -2,25 +2,31 @@ from machine import Pin
 from time import ticks_ms, ticks_diff
 
 
-class pedestrian_button(self, pin, debug):
+class pedestrian_button:
     """
-    class used to control a button and stores its state using a rasberry pi or pico
+    Class used to control a button and store its state using a Raspberry Pi Pico.
 
-    Args: pin(int), GPIO pin number for button
-    debug(bool): whether debug is on or off
+    Args:
+        pin (int): GPIO pin number for the button.
+        debug (bool): Whether debug is on or off.
 
     Example:
-    button = pedestrian_button(23, False)
-    button.button_state"""
+        button = pedestrian_button(23, False)
+        button.button_state
+    """
 
-    super().__init__(pin, Pin.IN, Pin.PULL_DOWN)
+    def __init__(self, pin, debug):
+        self.__debug = debug
+        self.__pin = pin
+        self.__last_pressed = 0  # Track the last time the button was pressed
+        self.__pedestrian_waiting = False
 
-    self.__debug = debug
-    self.__pin = pin
-    self.__last_pressed = 0  # track the last time the button was pressed
-    self.__pedestrian_waiting = False
+        # Initialize the pin as an input with a pull-down resistor
+        self.__button = Pin(pin, Pin.IN, Pin.PULL_DOWN)
 
-    # Set up interupt on rising edge self.irq(trigger=Pin.IRQ_rising, handler = self.callback)
+        # Set up an interrupt on the rising edge
+        self.__button.irq(trigger=Pin.IRQ_RISING, handler=self.callback)
+
     def button_state(self, value=None):
         if value is None:
             # Getter
@@ -28,21 +34,19 @@ class pedestrian_button(self, pin, debug):
                 print(
                     f"Button connected to Pin {self.__pin} is {'WAITING' if self.__pedestrian_waiting else 'NOT WAITING'}"
                 )
+            return self.__pedestrian_waiting
         else:
             # Setter
-            self.__pedestrian_waiting = bool(
-                value
-            )  # Convert to boolean to ensure proper type
+            self.__pedestrian_waiting = bool(value)
             if self.__debug:
                 print(
-                    f"Button state on Pin {self.__pin} set to {self.__pedestrial_waiting}"
+                    f"Button state on Pin {self.__pin} set to {self.__pedestrian_waiting}"
                 )
-        return self.__pedestrian_waiting
 
     def callback(self, pin):
-        current_time = ticks.ms()  # Get the current time in milliseconds
+        current_time = ticks_ms()  # Get the current time in milliseconds
 
-        if ticks_diff(current_time, self.__last_pressed) > 200:
+        if ticks_diff(current_time, self.__last_pressed) > 200:  # Debounce for 200ms
             self.__last_pressed = current_time
             self.__pedestrian_waiting = True
             if self.__debug:
