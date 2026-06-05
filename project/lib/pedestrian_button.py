@@ -2,7 +2,7 @@ from machine import Pin
 from time import ticks_ms, ticks_diff
 
 
-class pedestrian_button:
+class PedestrianButton:
     """
     Class used to control a button and store its state using a Raspberry Pi Pico.
 

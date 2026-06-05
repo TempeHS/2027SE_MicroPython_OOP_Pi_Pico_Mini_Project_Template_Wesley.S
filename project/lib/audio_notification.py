@@ -2,7 +2,7 @@ from machine import Pin, PWM
 from time import sleep, time
 
 
-class Audio_Notification(PWM):
+class AudioNotification(PWM):
     def __init__(self, pin, debug=False):
         super().__init__(Pin(pin))
         self.__debug = debug
@@ -24,3 +24,8 @@ class Audio_Notification(PWM):
         if now - self.__last_toggle_time >= 0.5:
             self.beep(freq=500, duration=100)
             self.__last_toggle_time = now
+
+    def warning_off(self):
+        if self.__debug:
+            print("Warning off")
+        self.duty_u16(0)
