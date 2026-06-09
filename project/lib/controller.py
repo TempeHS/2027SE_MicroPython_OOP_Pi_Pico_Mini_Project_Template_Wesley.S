@@ -51,6 +51,7 @@ class PedestrianLightSubsystem:
     def show_walk(self):
         if self.__debug:
             print("Pedestrian: Green ON")
+
         self.__red.off()
         self.__green.on()
         self.__buzzer.warning_off()
@@ -58,7 +59,7 @@ class PedestrianLightSubsystem:
     def show_warning(self):
         if self.__debug:
             print("Pedestrian: Warning ON")
-        self.__red.off()
+        self.__red.flash()
         self.__green.off()
         self.__buzzer.warning_on()
 
@@ -76,7 +77,7 @@ class Controller:
         ped_green,
         traffic_red,
         traffic_amber,
-        trafficgreen,
+        traffic_green,
         button,
         buzzer,
         debug,
@@ -84,36 +85,73 @@ class Controller:
         self.__traffic_lights = TrafficLightSubsystem(
             traffic_red, traffic_amber, traffic_green, debug
         )
-        self.__pedestrial_signals = PedestrianLightSubsystem(
+        self.__pedestrian_signals = PedestrianLightSubsystem(
             ped_red, ped_green, button, buzzer, debug
         )
         self.__debug = debug
         self.state = "IDLE"
-        self.last_state_change = time()
+        self.__last_state_change = time()
 
     def set_idle_state(self):
         if self.__debug:
             print("System: IDLE state")
-        self.__pedestrial_signals.show_stop()
+        self.__pedestrian_signals.show_stop()
         self.__traffic_lights.show_green()
 
     def set_change_state(self):
         if self.__debug:
             print("System: CHANGE state")
-        self.__pedestrial_signals.show_stop()
+        self.__pedestrian_signals.show_stop()
         self.__traffic_lights.show_amber()
 
     def set_walk_state(self):
         if self.__debug:
             print("System: WALK state")
-        self.__pedestrial_signals.show_walk()
+        self.__pedestrian_signals.show_walk()
         self.__traffic_lights.show_red()
 
     def set_warning_state(self):
         if self.__debug:
             print("System: WARNING state")
-        self.__pedestrial_signals.show_warning()
+        self.__pedestrian_signals.show_warning()
         self.__traffic_lights.show_red()
 
     def error_state(self):
         return None
+
+    def update(self):
+        current_time = time()
+        elapsed = current_time - self.__last_state_change
+
+        if self.state == "IDLE":
+            if self.__pedestrian_signals.is_button_pressed() and elapsed > 5:
+                self.state = "CHANGE"
+                self.__last_state_change = current_time
+            if self.__debug:
+                print("Switching to CHANGE")
+            self.set_idle_state()
+
+        elif self.state == "CHANGE":
+            if elapsed > 5:
+                self.state = "WALK"
+                self.__last_state_change = current_time
+                if self.__debug:
+                    print("Switching to WALK")
+            self.set_change_state()
+
+        elif self.state == "WALK":
+            if elapsed > 5:
+                self.state = "WALK_WARNING"
+                self.__last_state_change = current_time
+                if self.__debug:
+                    print("Switching to WALK WARNING")
+            self.set_walk_state()
+
+        elif self.state == "WALK_WARNING":
+            if elapsed > 5:
+                self.state = "IDLE"
+                self.__last_state_change = current_time
+                self.__pedestrian_signals.reset_button()
+                if self.__debug:
+                    print("Returning to IDLE")
+            self.set_warning_state()
